@@ -1,11 +1,24 @@
+import os
+
 import json
 from mongoengine import connect, disconnect
+from dotenv import load_dotenv
 
 from models import Author, Quote
 
-URI = "mongodb+srv://melnychenkoyuliiav:CYOn54e4tDAWV8W8@cluster1.iva9h8j.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1"
-disconnect()
-connect(host=URI, db="Homework8")
+
+load_dotenv() # завантажуються дані з файлу .env 
+# створюємо змінні для всіх сікретів у нашому файлі .env
+mongo_user = os.getenv("MONGO_USER")
+mongo_pass = os.getenv("MONGO_PASS")
+cluster_name = os.getenv("MONGO_CLUSTER")
+app_name = os.getenv("APP_NAME")
+my_db_name = os.getenv("MY_DB_NAME")
+
+URI = f"mongodb+srv://{mongo_user}:{mongo_pass}@{cluster_name}.iva9h8j.mongodb.net/?retryWrites=true&w=majority&appName={app_name}"
+
+disconnect() # відключаємося на всяк випадок, щоб уникнути помилки, коли підключення вже існує і зробити нове неможливо
+connect(host=URI, db=my_db_name)
 
 
 # Функція для завантаження авторів
