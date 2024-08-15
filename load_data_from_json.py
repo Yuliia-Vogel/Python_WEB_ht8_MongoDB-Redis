@@ -1,7 +1,7 @@
 import os
 
 import json
-from mongoengine import connect, disconnect
+from mongoengine import connect, disconnect, NotUniqueError
 from dotenv import load_dotenv
 
 from models import Author, Quote
@@ -24,10 +24,20 @@ connect(host=URI, db=my_db_name)
 # Функція для завантаження авторів
 def load_authors(filename):
     with open(filename, 'r', encoding='utf-8') as file:
-        data = json.load(file)
-        for item in data:
-            author = Author(**item)
-            author.save()
+        authors_data = json.load(file)
+        for author_data in authors_data:
+            fullname = author_data.get("fullname")
+            # Перевіряємо, чи є автор з таким іменем у базі
+            existing_author = Author.objects(fullname=fullname).first()
+            if not existing_author:
+                author = Author(**author_data)
+                try:
+                    author.save()
+                    # print(f"Author '{fullname}' saved successfully.")
+                except NotUniqueError:
+                    print(f"Author '{fullname}' already exists in the database.")
+            else:
+                print(f"Author '{fullname}' already exists in the database.")
 
 
 # Функція для завантаження цитат
